@@ -138,6 +138,104 @@
 })();
 
 /* ─────────────────────────────────────
+   Mini Terminal Animation
+───────────────────────────────────── */
+(function initTerminal() {
+  const body = document.getElementById('terminalBody');
+  if (!body) return;
+
+  const SCRIPT = [
+    { type: 'cmd',  text: 'whoami' },
+    { type: 'out',  text: '<span class="t-hi">WHATWANT</span>' },
+    { type: 'cmd',  text: 'cat about.txt' },
+    { type: 'out',  text: 'Developer @ <span class="t-ok">Samsung</span>' },
+    { type: 'out',  text: 'Location: Dongtan, Korea 🇰🇷' },
+    { type: 'cmd',  text: 'ls skills/' },
+    { type: 'out',  text: '<span class="t-cyan">Python</span>  <span class="t-cyan">Kubernetes</span>  <span class="t-cyan">MLOps</span>' },
+    { type: 'out',  text: '<span class="t-cyan">Docker</span>   <span class="t-cyan">AI/ML</span>      <span class="t-cyan">DevOps</span>' },
+    { type: 'cmd',  text: 'git log --oneline -3' },
+    { type: 'out',  text: '<span class="t-ok">a1b2c3d</span> feat: add AI to everything' },
+    { type: 'out',  text: '<span class="t-ok">e4f5g6h</span> fix: coffee overflow error' },
+    { type: 'out',  text: '<span class="t-ok">i7j8k9l</span> init: hello world' },
+    { type: 'cmd',  text: '' },
+  ];
+
+  let lineIdx  = 0;
+  let charIdx  = 0;
+  let phase    = 'prompt';
+
+  const cursor = document.createElement('span');
+  cursor.className = 't-cursor';
+
+  function currentLine() {
+    return body.lastElementChild;
+  }
+
+  function newLine(classes = '') {
+    const el = document.createElement('span');
+    el.className = 't-line' + (classes ? ' ' + classes : '');
+    body.appendChild(el);
+    return el;
+  }
+
+  function appendCursor() {
+    body.appendChild(cursor);
+  }
+
+  function tick() {
+    if (lineIdx >= SCRIPT.length) {
+      appendCursor();
+      return;
+    }
+
+    const entry = SCRIPT[lineIdx];
+
+    if (phase === 'prompt') {
+      const line = newLine();
+      if (entry.type === 'cmd') {
+        line.innerHTML = '<span class="t-prompt">❯ </span><span class="t-cmd"></span>';
+      }
+      phase = 'type';
+      charIdx = 0;
+      setTimeout(tick, 120);
+      return;
+    }
+
+    if (phase === 'type') {
+      const entry = SCRIPT[lineIdx];
+
+      if (entry.type === 'cmd') {
+        const cmdSpan = currentLine().querySelector('.t-cmd');
+        if (charIdx < entry.text.length) {
+          cmdSpan.textContent += entry.text[charIdx];
+          charIdx++;
+          setTimeout(tick, 55 + Math.random() * 40);
+        } else {
+          lineIdx++;
+          phase = 'wait';
+          setTimeout(tick, entry.text === '' ? 600 : 380);
+        }
+      } else {
+        const line = newLine('t-out');
+        line.innerHTML = entry.text;
+        lineIdx++;
+        phase = 'prompt';
+        setTimeout(tick, 60);
+      }
+      return;
+    }
+
+    if (phase === 'wait') {
+      phase = 'prompt';
+      setTimeout(tick, 80);
+    }
+  }
+
+  appendCursor();
+  setTimeout(tick, 700);
+})();
+
+/* ─────────────────────────────────────
    Skill hover ripple
 ───────────────────────────────────── */
 document.querySelectorAll('.skill').forEach(skill => {
