@@ -249,6 +249,23 @@ document.querySelectorAll('.skill').forEach(skill => {
 });
 
 /* ─────────────────────────────────────
+   QR Code
+───────────────────────────────────── */
+(function initQR() {
+  const el = document.getElementById('qrcode');
+  if (!el || typeof QRCode === 'undefined') return;
+
+  new QRCode(el, {
+    text:         'https://whatwant-school.github.io/name-card/',
+    width:        120,
+    height:       120,
+    colorDark:    '#0d1117',
+    colorLight:   '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M,
+  });
+})();
+
+/* ─────────────────────────────────────
    Glitch flash on name (occasional)
 ───────────────────────────────────── */
 (function initGlitch() {
